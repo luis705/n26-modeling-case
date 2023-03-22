@@ -19,7 +19,7 @@ Finally, the other reason I chose this schema over the star schema is that datab
 To model the database I will follow 5 basic steps described bellow:
 
 - [Identify entities and attributes](#entities-and-attributes): the first thing to do is to know your data. In this step I will study the column names, try to aggregate them as attributes of various entities.
-- Create the fact tables: after knowing the data, decide which metrics are important to the business, thus creating the columns of the fact table.
+- [Create the fact tables](#fact-table-creation): after knowing the data, decide which metrics are important to the business, thus creating the columns of the fact table.
 - Create the dimension tables: the dimension tables are auxiliray tables that contains descriptive attributes of the data, create those tables is the next step.
 - Normalize dimension tables: in the snowflake schema the dimension tables are normalized to avoid redundancy and improve performance
 - Create the relation between tables: relate the fact and dimension tables, also create the relationship between the dimension tables and its helper tables. This process is made by adding primary and foreign keys.
@@ -35,6 +35,30 @@ color, etc.
 - Transaction: dates of any type of transaction - debit or credit card, pix, digital wallets.
 
 
+## Fact table creation:
+Observing the given column names, it is possible to verify that there is not a column that reports a fact in itself. This way I had two options: create new columns for facts, or build a fact table based on events.
+
+Initially I decided to go with the second approach, but it may be that in the next development stages I will add more columns with facts containing real measurements.
+
+Because of this the fact table must only count foreign keys to the dimension tables. Thus, in this table there will be, in addition to the primary key column, the keys for the dimension account, card, person and transaction.  The definition of this table can be seen below.
+
+<div align="center">
+
+```mermaid
+---
+title: Fact table
+---
+erDiagram
+    EventFact {
+        int fact_id
+        int account_id
+        int card_id
+        int person_id
+        int transaction_id
+    }
+```
+</div>
+
 # References
 
 [Tutorialspoint: Data Warehousing - Schemas](https://www.tutorialspoint.com/dwh/dwh_schemas.htm)
@@ -42,3 +66,5 @@ color, etc.
 [Vertabelo: Star Schema vs. Snowflake Schema](https://vertabelo.com/blog/data-warehouse-modeling-star-schema-vs-snowflake-schema/)
 
 [Software Tersting Help: Schema Types In Data Warehouse Modeling – Star & SnowFlake Schema](https://www.softwaretestinghelp.com/data-warehouse-modeling-star-schema-snowflake-schema/#Which_Is_Better_Snowflake_Schema_Or_Star_Schema)
+
+[Bigbear.AI: Factless Fact Tables](https://bigbear.ai/blog/factless-fact-tables/)
