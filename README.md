@@ -20,7 +20,7 @@ To model the database I will follow 5 basic steps described bellow:
 
 - [Identify entities and attributes](#entities-and-attributes): the first thing to do is to know your data. In this step I will study the column names, try to aggregate them as attributes of various entities.
 - [Create the fact tables](#fact-table-creation): after knowing the data, decide which metrics are important to the business, thus creating the columns of the fact table.
-- Create the dimension tables: the dimension tables are auxiliray tables that contains descriptive attributes of the data, create those tables is the next step.
+- [Create the dimension tables](#dimension-tables-creation): the dimension tables are auxiliray tables that contains descriptive attributes of the data, create those tables is the next step.
 - Normalize dimension tables: in the snowflake schema the dimension tables are normalized to avoid redundancy and improve performance
 - Create the relation between tables: relate the fact and dimension tables, also create the relationship between the dimension tables and its helper tables. This process is made by adding primary and foreign keys.
 
@@ -50,12 +50,115 @@ title: Fact table
 ---
 erDiagram
     EventFact {
-        int fact_id
-        int account_id
-        int card_id
-        int person_id
-        int transaction_id
+        int fact_id PK
+        int account_id FK
+        int card_id FK
+        int person_id FK
+        int transaction_id FK
     }
+```
+</div>
+
+## Dimension tables creation:
+As mentioned earlier we have a dimension for each entity we want to model. So there are 4 dimension tables, each one with its attributes.
+
+<div align="center">
+
+```mermaid
+---
+title: Dimension tables
+---
+erDiagram
+    DimAccount {
+        int    account_id PK
+
+        binary account_password
+        
+        bool   account_active
+        bool   account_free
+        bool   account_type
+        bool   active_loan
+        bool   active_pix
+        
+        bool   credit_pre_aproved
+        
+        date   date_cancelation
+        date   date_doc_submition
+        date   date_last_login
+        date   date_onboarding_end
+        date   date_onboarding_start
+        date   date_register
+        
+        int    number_spaces
+        int    account_balance
+        
+        string account_corp_name
+    }
+
+    DimCard {
+        int    card_id PK
+        
+        date   card_bill_expiration_date
+        date   card_received_date
+        date   card_request_date
+        
+        int    card_last_digits
+        int    card_limit
+        int    card_quantity
+        
+        string card_color
+        string card_tracking_status 
+    }
+
+    DimPerson {
+        int    person_id PK
+        
+        bool   ppe
+
+        date   birth_date
+
+        int    age
+        int    monthly_income
+
+        string app_version
+        string cell_phone_model
+        string cell_phone_number
+        string cell_phone_operator
+        string cell_phone_os
+        string city
+        string district
+        string doc_number
+        string email
+        string latitude
+        string longitude
+        string marital_status
+        string mother_name
+        string name
+        string state
+    }
+
+    DimTransaction {
+        int transaction_id PK
+        
+        date date_first_cashin
+        date date_first_cashout
+        date date_first_credit_card
+        date date_first_debit_card
+        date date_first_digital_wallet
+        date date_first_pix_cashin
+        date date_first_pix_cashout
+
+        date date_last_cashin
+        date date_last_cashout
+        date date_last_credit_card
+        date date_last_debit_card
+        date date_last_digital_wallet
+        date date_last_pix_cashin
+        date date_last_pix_cashout
+        date date_last_transaction
+
+    }
+
 ```
 </div>
 
