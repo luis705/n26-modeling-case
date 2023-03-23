@@ -36,31 +36,67 @@ color, etc.
 
 
 ## Fact table creation:
-Observing the given column names, it is possible to verify that there is not a column that reports a fact in itself. This way I had two options: create new columns for facts, or build a fact table based on events.
+Observing the given column names, it is possible to verify that there is not a column that reports a fact in itself. This way I had two options: create new columns for facts, or build a fact table based on events. The decidision to use a event based approach was chosen at first, but was discarded. So I created some new columns to use as facts. 
 
-Initially I decided to go with the second approach, but it may be that in the next development stages I will add more columns with facts containing real measurements.
+The first created fact table is about transactions. Every transaction store its value, date, location and type. 
 
-Because of this the fact table must only count foreign keys to the dimension tables. Thus, in this table there will be, in addition to the primary key column, the keys for the dimension account, card, person and transaction.  The definition of this table can be seen below.
+The second one is about accounts. It stores various boolean values about ana account like if it is free or payed, active or not, have an active loan or not, and some personal info.
 
+The third one is a customer fact that will store personal information of customer.
+
+The last fact table is about cards. It stores thing like the number of cards an account have, the limit of the card, the color, request and received date, etc.
 <div align="center">
 
 ```mermaid
 ---
-title: Fact table
+title: Fact tables
 ---
 erDiagram
-    EventFact {
-        int fact_id PK
-        int account_id FK
-        int card_id FK
-        int person_id FK
-        int transaction_id FK
+    TransactionFact {
+        int    transaction_id PK
+        int    date_id FK
+        int    location_id FK
+        int    transaction_type_id FK
+        int    value
+    }
+
+    AccountFact {
+        int    account_id PK
+        int    account_dates_id FK
+        int    device_id FK
+        int    account_status_id FK
+        binary password
+        int    balance
+        int    number_of_spaces
+        string corp_name
+    }
+
+    CustomerFact {
+        int    customer_id PK
+        int    birth_date_id FK
+        int    location_id FK
+        int    device_id FK
+        int    customer_status_id FK
+        int    age
+        int    monthly_income
+        string cellphone_number
+        string email
+        string mothers_name
+    }
+
+    CardFact {
+        int    card_id PK
+        int    card_dates_id FK
+        int    number_of_cards
+        int    card_limit
+        string card_color
+        string tracking_status
     }
 ```
 </div>
 
 ## Dimension tables creation:
-As mentioned earlier we have a dimension for each entity we want to model. So there are 4 dimension tables, each one with its attributes.
+The dimension tables are created based on the fact tables foreign keys. Considreing that we need 8 different dimensions.
 
 <div align="center">
 
@@ -69,98 +105,74 @@ As mentioned earlier we have a dimension for each entity we want to model. So th
 title: Dimension tables
 ---
 erDiagram
-    DimAccount {
-        int    account_id PK
 
-        binary account_password
-        
-        bool   account_active
-        bool   account_free
-        bool   account_type
-        bool   active_loan
-        bool   active_pix
-        
-        bool   credit_pre_aproved
-        
-        date   date_cancelation
-        date   date_doc_submition
-        date   date_last_login
-        date   date_onboarding_end
-        date   date_onboarding_start
-        date   date_register
-        
-        int    number_spaces
-        int    account_balance
-        
-        string account_corp_name
+    DimDate {
+        int  date_id PK
+        int  day
+        int  month
+        int  year
+        date date
     }
 
-    DimCard {
-        int    card_id PK
-        
-        date   card_bill_expiration_date
-        date   card_received_date
-        date   card_request_date
-        
-        int    card_last_digits
-        int    card_limit
-        int    card_quantity
-        
-        string card_color
-        string card_tracking_status 
+    DimAccountDates {
+        int account_dates_id PK
+        int creation_date_id FK
+        int cancelation_date_id FK
+        int doc_submition_date_id FK
+        int last_login_date_id FK
+        int onboarding_end_date_id FK
+        int onboarding_start_date_id FK
+        int inactivation_date_id FK
     }
 
-    DimPerson {
-        int    person_id PK
-        
-        bool   ppe
-
-        date   birth_date
-
-        int    age
-        int    monthly_income
-
-        string app_version
-        string cell_phone_model
-        string cell_phone_number
-        string cell_phone_operator
-        string cell_phone_os
-        string city
-        string district
-        string doc_number
-        string email
-        string latitude
-        string longitude
-        string marital_status
-        string mother_name
-        string name
+    DimCardDates {
+        int request_date_id FK
+        int received_date_id FK
+        int bill_expiration_date_id FK
+    }
+    DimLocation {
+        int    location_id PK
+        string country
         string state
+        string city
+        string neighborhood
+        string street
     }
 
-    DimTransaction {
-        int transaction_id PK
-        
-        date date_first_cashin
-        date date_first_cashout
-        date date_first_credit_card
-        date date_first_debit_card
-        date date_first_digital_wallet
-        date date_first_pix_cashin
-        date date_first_pix_cashout
+    DimDevice {
+        int    device_id PK
+        string device_model
+        string device_operator
+        string device_os
+        string app_version
+    }
 
-        date date_last_cashin
-        date date_last_cashout
-        date date_last_credit_card
-        date date_last_debit_card
-        date date_last_digital_wallet
-        date date_last_pix_cashin
-        date date_last_pix_cashout
-        date date_last_transaction
+    DimTransactionType {
+        int    transaction_type_id PK
+        string type
+        bool   in_out
+    }
 
+    DimAccountStatus {
+        int  account_status_id PK
+        bool account_active
+        bool credit_pre_approved
+        bool free
+        bool loan_active
+        bool pix_active
+        bool person_type
+    }
+
+    DimCustomerStatus {
+        int  customer_status_id PK
+        bool marital_status
+        bool ppe
     }
 
 ```
 </div>
+
+Combining these two diagrams we can see the snowflake form. ALthough transaction, customer and card facts references directly the date dimension, the account and card facts references it indirectly using another dimension table.
 
 # References
 
