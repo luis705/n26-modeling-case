@@ -172,7 +172,7 @@ erDiagram
 ```
 </div>
 
-Combining these two diagrams we can see the snowflake form. ALthough transaction, customer and card facts references directly the date dimension, the account and card facts references it indirectly using another dimension table.
+Combining these two diagrams we can see the snowflake form. Although transaction and customer facts references directly the date dimension, the account and card facts references it indirectly using another dimension table.
 
 # References
 
