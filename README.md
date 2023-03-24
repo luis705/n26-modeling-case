@@ -21,7 +21,7 @@ To model the database I will follow 5 basic steps described bellow:
 - [Identify entities and attributes](#entities-and-attributes): the first thing to do is to know your data. In this step I will study the column names, try to aggregate them as attributes of various entities.
 - [Create the fact tables](#fact-table-creation): after knowing the data, decide which metrics are important to the business, thus creating the columns of the fact table.
 - [Create the dimension tables](#dimension-tables-creation): the dimension tables are auxiliray tables that contains descriptive attributes of the data, create those tables is the next step.
-- Normalize dimension tables: in the snowflake schema the dimension tables are normalized to avoid redundancy and improve performance
+- [Normalize dimension tables](#dimension-tables-normalization): in the snowflake schema the dimension tables are normalized to avoid redundancy and improve performance
 - Create the relation between tables: relate the fact and dimension tables, also create the relationship between the dimension tables and its helper tables. This process is made by adding primary and foreign keys.
 
 
@@ -54,6 +54,7 @@ title: Fact tables
 erDiagram
     TransactionFact {
         int    transaction_id PK
+        int    device_id FK
         int    date_id FK
         int    location_id FK
         int    transaction_type_id FK
@@ -63,7 +64,7 @@ erDiagram
     AccountFact {
         int    account_id PK
         int    account_dates_id FK
-        int    device_id FK
+        
         int    account_status_id FK
         binary password
         int    balance
@@ -174,6 +175,20 @@ erDiagram
 
 Combining these two diagrams we can see the snowflake form. Although transaction and customer facts references directly the date dimension, the account and card facts references it indirectly using another dimension table.
 
+## Dimension tables normalization
+
+As is, the modeled database is already on the third normal form because it follows the rules below:
+
+- All cells are atomic: none of them stores more than one value
+- all tables have a primary key for identification
+- There are no duplicate columns or rows
+- All columns have ony one value for each row
+- There is no partial dependency: all non-key attributes are fully dependant on key attributes
+- There is no partial dependency: non prime attributes depends on other non prime attribute
+
+## Table relations
+Again, the way the tables were created, the relation keys already exists. The only change we need to make is add those relations on the database creation files. 
+
 # References
 
 [Tutorialspoint: Data Warehousing - Schemas](https://www.tutorialspoint.com/dwh/dwh_schemas.htm)
@@ -183,3 +198,5 @@ Combining these two diagrams we can see the snowflake form. Although transaction
 [Software Tersting Help: Schema Types In Data Warehouse Modeling – Star & SnowFlake Schema](https://www.softwaretestinghelp.com/data-warehouse-modeling-star-schema-snowflake-schema/#Which_Is_Better_Snowflake_Schema_Or_Star_Schema)
 
 [Bigbear.AI: Factless Fact Tables](https://bigbear.ai/blog/factless-fact-tables/)
+
+[freeCodeCamp: Database Normalization – Normal Forms 1nf 2nf 3nf Table Examples](https://www.freecodecamp.org/news/database-normalization-1nf-2nf-3nf-table-examples/#whatis1nf2nfand3nf)
